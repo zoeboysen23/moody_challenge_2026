@@ -18,6 +18,24 @@ from tqdm import tqdm
 
 from helper_code import *
 
+#our teams imports 
+import scipy as sp 
+import matplotlib as plt
+# deep learning libraries
+from keras import backend as K
+from keras import layers, Model
+import keras
+# visualization and signal processing imports
+import matplotlib.pyplot as plt
+import tensorflow as tf
+import numpy as np
+from scipy.signal import butter, filtfilt
+from scipy.io import loadmat
+# setting the backend, seed and Keras channel format
+K.set_image_data_format("channels_first")
+keras.utils.set_random_seed(42)
+
+
 ################################################################################
 # Path & Constant Configuration (Added for Robustness)
 ################################################################################
@@ -137,6 +155,10 @@ def train_model(data_folder, model_folder, verbose, csv_path=DEFAULT_CSV_PATH):
     model = RandomForestClassifier(
         n_estimators=n_estimators, max_leaf_nodes=max_leaf_nodes, random_state=random_state).fit(features, labels)
 
+    #put model here!
+
+
+
     # Create a folder for the model if it does not already exist.
     os.makedirs(model_folder, exist_ok=True)
 
@@ -246,7 +268,7 @@ def extract_demographic_features(data):
 
     # 5. Concatenate all components into a single vector (1 + 3 + 5 + 1 = 10)
     
-    return np.concatenate([age, sex_vec, race_vec, bmi])
+    return np.concatenate([age, sex_vec, race_vec, bmi]) #can add ethnicity 
 
 
 def extract_physiological_features(physiological_data, physiological_fs, csv_path=DEFAULT_CSV_PATH):
