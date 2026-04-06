@@ -52,6 +52,66 @@ DEFAULT_CSV_PATH = os.path.join(SCRIPT_DIR, 'channel_table.csv')
 # Required functions. Edit these functions to add your code, but do not change the arguments for the functions.
 #
 ################################################################################
+# --- Positional Encoding ---
+class PositionalEncoding(layers.Layer):
+    def __init__(self, max_len, d_model):
+        super().__init__()
+        self.pos_emb = layers.Embedding(input_dim=max_len, output_dim=d_model)
+
+    def call(self, x):
+        positions = tf.range(start=0, limit=tf.shape(x)[1], delta=1)
+        pos_encoding = self.pos_emb(positions)
+        return x + pos_encoding
+
+
+# --- Transformer Block ---
+def transformer_block(x, head_size, num_heads, ff_dim, dropout=0.1):
+    # Attention
+    attn = layers.MultiHeadAttention(
+        num_heads=num_heads, key_dim=head_size
+    )(x, x)
+    attn = layers.Dropout(dropout)(attn)
+    x = layers.LayerNormalization(epsilon=1e-6)(x + attn)
+
+    # Feedforward
+    ff = layers.Dense(ff_dim, activation="relu")(x)
+    ff = layers.Dense(x.shape[-1])(ff)
+    ff = layers.Dropout(dropout)(ff)
+
+    return layers.LayerNormalization(epsilon=1e-6)(x + ff)
+
+
+# --- Model ---
+def build_model(
+    time_steps=1000,
+    channels=32,
+    d_model=128,
+    num_heads=4,
+    ff_dim=256,
+    num_layers=4,
+    num_classes=2
+):
+    inputs = layers.Input(shape=(time_steps, channels))
+
+    # Patch embedding (Conv1D acts as tokenizer)
+    x = layers.Conv1D(filters=d_model, kernel_size=16, strides=16, padding="same")(inputs)
+
+    # Positional encoding
+    x = PositionalEncoding(max_len=1000, d_model=d_model)(x)
+
+    # Transformer layers
+    for _ in range(num_layers):
+        x = transformer_block(x, d_model, num_heads, ff_dim)
+
+    # Global pooling
+    x = layers.GlobalAveragePooling1D()(x)
+
+    # Classification head
+    x = layers.Dense(128, activation="relu")(x)
+    x = layers.Dropout(0.3)(x)
+    outputs = layers.Dense(num_classes, activation="softmax")(x)
+
+    return Model(inputs, outputs)
 
 # Train your models. This function is *required*. You should edit this function to add your code, but do *not* change the arguments
 # of this function. If you do not train one of the models, then you can return None for the model.
@@ -156,9 +216,20 @@ def train_model(data_folder, model_folder, verbose, csv_path=DEFAULT_CSV_PATH):
         n_estimators=n_estimators, max_leaf_nodes=max_leaf_nodes, random_state=random_state).fit(features, labels)
 
     #put model here!
+    model = build_model()
+    model.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+    loss="sparse_categorical_crossentropy",
+    metrics=["accuracy"]
+    )
 
-
-
+    model.fit(
+    features,
+    labels,
+    epochs=20,
+    batch_size=32,
+    validation_split=0.2
+)
     # Create a folder for the model if it does not already exist.
     os.makedirs(model_folder, exist_ok=True)
 
