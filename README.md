@@ -8,11 +8,21 @@ For this example, we implemented a random forest model with several simple featu
 
 ## How do I run these scripts?
 
+Create environment:
+    python3 -m venv ~/tf-metal
+Activate environment: 
+    source ~/tf-metal/bin/activate
+
 First, you can download and create data for these scripts by following the [instructions](https://github.com/physionetchallenges/python-example-2026?tab=readme-ov-file#how-do-i-create-data-for-these-scripts) in the following section.
 
 Second, you can install the dependencies for these scripts by creating a Docker image (see below) or [virtual environment](https://docs.python.org/3/library/venv.html) and running
 
+    pip install --upgrade pip
     pip install -r requirements.txt
+    
+if running on mac with an M1,M2 chip 
+    pip install tensorflow-macos
+    pip install tensorflow-metal
 
 You can train your model by running
 

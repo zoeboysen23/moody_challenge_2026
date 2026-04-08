@@ -12,8 +12,8 @@
 import joblib
 import numpy as np
 import os
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-import sys
+# from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+# import sys
 from tqdm import tqdm
 
 from helper_code import *
@@ -89,7 +89,7 @@ def build_model(
     num_heads=4,
     ff_dim=256,
     num_layers=4,
-    num_classes=2
+    num_classes=6
 ):
     inputs = layers.Input(shape=(time_steps, channels))
 
@@ -111,7 +111,11 @@ def build_model(
     x = layers.Dropout(0.3)(x)
     outputs = layers.Dense(num_classes, activation="softmax")(x)
 
-    return Model(inputs, outputs)
+    #could reshape and put into LSTM layer
+    lstm_out = layers.LSTM(64)(outputs) 
+    predictions = layers.Dense(1, activation="sigmoid")(lstm_out)
+
+    return Model(inputs, outputs = predictions)
 
 # Train your models. This function is *required*. You should edit this function to add your code, but do *not* change the arguments
 # of this function. If you do not train one of the models, then you can return None for the model.
@@ -212,24 +216,26 @@ def train_model(data_folder, model_folder, verbose, csv_path=DEFAULT_CSV_PATH):
     random_state = 56  # Random state; set for reproducibility.
 
     # Fit the model.
-    model = RandomForestClassifier(
-        n_estimators=n_estimators, max_leaf_nodes=max_leaf_nodes, random_state=random_state).fit(features, labels)
+    # model = RandomForestClassifier(
+    #     n_estimators=n_estimators, max_leaf_nodes=max_leaf_nodes, random_state=random_state).fit(features, labels)
 
-    #put model here!
+    #put model here! __________________________________________________________________________________________________________________________________
     model = build_model()
     model.compile(
-    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
-    loss="sparse_categorical_crossentropy",
-    metrics=["accuracy"]
+        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
     )
 
     model.fit(
-    features,
-    labels,
-    epochs=20,
-    batch_size=32,
-    validation_split=0.2
-)
+        features,                   #signal data 
+        labels,                     #labels
+        epochs=20,
+        batch_size=32,
+        validation_split=0.2        #how much data set aside for quality check out of 1
+    )
+    #__________________________________________________________________________________________________________________________________________________
+
     # Create a folder for the model if it does not already exist.
     os.makedirs(model_folder, exist_ok=True)
 
