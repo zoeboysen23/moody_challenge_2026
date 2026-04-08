@@ -28,6 +28,8 @@ You can train your model by running
 
     python train_model.py -d training_data -m model
 
+    python train_model.py -d /Volumes/NO NAME/2/training_set -m model
+
 where
 
 - `training_data` (input; required) is a folder with the training data files, which must include the labels; and
