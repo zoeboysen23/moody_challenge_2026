@@ -20,16 +20,16 @@ from helper_code import *
 
 #our teams imports 
 import scipy as sp 
-import matplotlib as plt
+# import matplotlib as plt
 # deep learning libraries
 from keras import backend as K
 from keras import layers, Model
 import keras
 # visualization and signal processing imports
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
-from scipy.signal import butter, filtfilt
+from scipy.sisgnal import butter, filtfilt
 from scipy.io import loadmat
 # setting the backend, seed and Keras channel format
 K.set_image_data_format("channels_first")
@@ -112,10 +112,10 @@ def build_model(
     outputs = layers.Dense(num_classes, activation="softmax")(x)
 
     #could reshape and put into LSTM layer
-    lstm_out = layers.LSTM(64)(outputs) 
-    predictions = layers.Dense(1, activation="sigmoid")(lstm_out)
+    # lstm_out = layers.LSTM(64)(outputs) 
+    # outputs = layers.Dense(1, activation="sigmoid")(lstm_out)
 
-    return Model(inputs, outputs = predictions)
+    return Model(inputs, outputs = outputs)
 
 # Train your models. This function is *required*. You should edit this function to add your code, but do *not* change the arguments
 # of this function. If you do not train one of the models, then you can return None for the model.
