@@ -112,8 +112,8 @@ def build_model(
     outputs = layers.Dense(num_classes, activation="softmax")(x)
 
     #could reshape and put into LSTM layer
-    # lstm_out = layers.LSTM(64)(outputs) 
-    # outputs = layers.Dense(1, activation="sigmoid")(lstm_out)
+    lstm_out = layers.LSTM(64)(outputs) 
+    outputs = layers.Dense(1, activation="sigmoid")(lstm_out)
 
     return Model(inputs, outputs = outputs)
 
